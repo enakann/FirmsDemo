@@ -8,13 +8,7 @@ class Pickling:
             fh=open(self.fn,'rb')
             data=pickle.load(fh)
         except (EOFError,IOError):
-            d={}
-            self.write(d)
-            return self.read()
-        fh.close()
-        if data:
-          return data
-        return None
+            raise
     def write(self,msg):
         fw=open(self.fn,'wb')
         pickle.dump(msg,fw)

@@ -30,7 +30,7 @@ class FirmsPublisher:
 
     def set_property(self,msg):
         #self.msg_props = pika.BasicProperties()
-        self.header=msg.pop("headers")
+        self.header=msg.pop("Message_header")
         self.msg_props=pika.BasicProperties(
                           headers=self.header # Add a key/value header
                       )
@@ -122,7 +122,7 @@ config={'userName':'kannan',
         }
 
 #msgs=sys.argv[1:]
-msg={"headers":                      
+msg={"Message_header":                      
 {
     "username":"navi",
     "ticket-num":"srno1",

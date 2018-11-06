@@ -65,7 +65,7 @@ class FirmsConsumer:
         try:
             res= self.message_received_callback(properties,body)
         except Exception as e:
-            #raise e
+            raise e
             print("Handler received exception {} ".format(e))
             res=None
         if res:
@@ -83,7 +83,7 @@ def func(body):
 def callback(*args,**kwargs):
      (result,Data)=DataStore(*args,**kwargs).process()
      print(Data)
-     if Data and result:
+     if Data:
          print("In call back ")
          publisher_config={'userName':'kannan',
             'password':'divya123',
@@ -120,8 +120,11 @@ class DataStore:
             raise e
         if data:
             print("in if data block")
+            print(data)
             if self.correlation_id in data.keys():
-                    msgAndHeader=data.get(self.correlation_id,None)
+                   # msgAndHeader=data.get(self.correlation_id,None)
+                    msgAndHeader=data.pop(self.correlation_id)
+                    self.pickle.write(data)
                     return (True,msgAndHeader)
             else:
                 print("in else of the if data part")
@@ -129,7 +132,10 @@ class DataStore:
                 data[self.correlation_id]['headers']=self.prop
                 data[self.correlation_id]['payload']=self.msg
                 print(data)
-                self.pickle.write(data)
+                try:
+                   self.pickle.write(data)
+                except Exception as e:
+                   raise e
                 return True
         else:
             print("in else part Datastore")
@@ -138,6 +144,7 @@ class DataStore:
             data[self.correlation_id]['headers']=self.prop
             data[self.correlation_id]['payload']=self.msg
             self.pickle.write(data)
+            print("else part picking done")
             return True
         return False
 
@@ -176,12 +183,16 @@ config={'userName':'kannan',
                  'delivery_mode':2}
         }
 
+#import pdb;pdb.set_trace()
 
 try:
   with FirmsConsumer(config) as conn:
       conn.consume(callback)
 except KeyboardInterrupt:
     print("keyboard interrupt")
+except Exception as e:
+    print(e)
+    raise e
 
 
 

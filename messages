@@ -1,0 +1,166 @@
+Validator Input -
+Message header
+{
+    username
+    ticket-num
+    correlation-id
+}
+Payload
+{     
+    source
+    destination
+    port
+    protocol
+    input-row-id (to be discussed)
+}
+
+
+Validator output - //it will emit either a Valid message or an Invalid message; never both for the same co-id
+
+Valid Message format
+Message header
+{
+    username
+    ticket-num
+    correlation-id
+}
+Payload (this would be resolved and validated)
+{     
+    source
+    destination
+    port
+    protocol
+    input-row-id
+}
+
+Invalid:
+Message header
+{
+    username
+    ticket-num
+    correlation-id
+}
+Payload
+{     
+    source
+    destination
+    port
+    protocol    
+    input-row-id
+    Error-Message //every input row may not have an error message
+}
+
+Generator Input-                // proxy before Generator will wait for the TicketInProgress message before it allows the Valid message from Validator to reach Generator
+    Valid message from validator
+    
+Generator Output (cmmon to all the generator output) -
+Message header
+{
+    username
+    ticket-num
+    correlation-id
+}
+
+    New Policies
+        Payload
+        {
+            firewall
+                meta-data:
+                {
+                    vendor (Cisco or Juniper)
+                    model (SRX and so on)
+                }
+                cmds:
+                { 
+                    new_src_cmd        //won't it be better to classify these 2 as simply as a new_addr_cmd?
+                    new_dst_cmd
+                    new_app_cmd
+                    pol_no { cmds (can we club that ????) } //pol_cmds must also be accompanied by the input-row-id(s)
+                }        
+            }
+        }
+    
+    Existing Policies
+        Payload
+        {
+            firewall
+            policy-name
+            source-ip
+            destination-ip
+            port
+            input-row-id
+        }
+    
+    Red flags
+        Payload
+        {
+          Source-IP
+          Routing-Issue-Reason (RF Code)
+          Input-Row-ID
+          Destination-Firewall
+          Dest-Zone-2            //we need more explicit names for these zones. something that explicitly mentions ingress/egress may be?
+          Source-Zone
+          Dest-Zone
+          Destination-IP
+          Source-Zone-2
+          Source-Firewall
+          Port
+        }
+
+    MessageInfo 
+    Payload
+        summary:
+        {
+            total_recs
+            recomm_for
+            existing    //existing_for
+            red_flags    //red_flags_for    
+        }
+        details:
+        {
+            src
+            dst
+            port (list)
+            status (list) --- for now this
+            is-red-flag 
+            input-row-id
+        }
+    }
+    
+Approver Input
+    MessageInfo
+    NewPolicies
+
+Approver Output -
+
+Pre-Approved
+Message Header { same as above }
+We will split newpolicies into 2 messages - Pre-approved and NotPreApproved        //good idea, we can later use matched+notmatched=new count as a final validation inside approver
+Format remains the same 
+
+Applier Input - Pre-approved
+
+Applier Output -
+Command - along with Result     //firewall also, along with the commands
+
+
+Change Manager Output -            // let's discuss about this 
+NetOpsRequired
+MessageHeader {
+    ticket number
+    username
+    co-id 
+}
+Payload {    
+    reason-type - (redflag, not approved, apply failed)
+    input-row-id (list)
+    additional-info (RF Code in case of red flags, cmds in case of not approved or apply failed)
+}
+
+NetOpsNotRequired -
+{
+    orig-ticket
+    total-records
+}
+
+ChangeDetails - Open

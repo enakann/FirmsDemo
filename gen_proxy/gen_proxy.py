@@ -123,8 +123,8 @@ class DataStore:
             print(data)
             if self.correlation_id in data.keys():
                    # msgAndHeader=data.get(self.correlation_id,None)
-                    msgAndHeader=data.pop(self.correlation_id)
-                    self.pickle.write(data)
+                    msgAndHeader=data.get(self.correlation_id)
+                    #self.pickle.write(data)
                     return (True,msgAndHeader)
             else:
                 print("in else of the if data part")

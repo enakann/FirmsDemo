@@ -1,5 +1,5 @@
 import pika
- 
+from publisher import FirmsPublisher 
 class FirmsConsumer:
     def __init__(self, config):
         self.config = config
@@ -59,12 +59,73 @@ class FirmsConsumer:
         try:
             res= self.message_received_callback(properties,body)
         except Exception as e:
-            print("Handler received exception {} for message {}".format(e,res))
+            print("Handler received exception {}".format(e))
             res=None
         if res:
             self.channel.basic_ack(delivery_tag=method.delivery_tag)
         else:
-            self.channel.basic_nack(delivery_tag=method.delivery_tag)
+            self.channel.basic_nack(delivery_tag=method.delivery_tag,requeue=False)
+
+
+
+def callback(*args,**kwargs):
+    data=Generate(*args,**kwargs).process()
+    if data:
+         config={'userName':'kannan',
+            'password':'divya123',
+            'host':'rabbitmq-1',
+            'port':'5672',
+            'virtualHost':'/',
+            'exchangeName':'Generator_Exchange'
+            }
+
+         with FirmsPublisher(config) as  generateInstance:
+            result=generateInstance.publish(data,"new.policy")
+            print("Message Published ---{}".format(result))
+    return True
+
+
+
+
+class Generate:
+    def __init__(self,prop,msg):
+        self.prop=prop.headers
+        self.msg=msg
+        self.correlation_id=None
+        self.out_msg={}
+    def process(self):
+        #self.correlation_id=self.get_corrid()
+         self.out_msg['headers']=self.prop
+         self.out_msg['new_policy']=self.get_new_policy()
+         return self.out_msg    
+    def get_corrid(self):
+          return self.prop['correlation-id']
+    def get_new_policy(self):
+        new_policy= {
+        "Payload":
+              {
+            "firewall":{
+                "meta-data":
+                {
+                    "vendor":"Cisco",
+                    "model":"SRX",
+                },
+                "cmds":
+                [
+                    "new_src_cmd",
+                    "new_dst_cmd",
+                    "new_app_cmd",
+                    "pol_no",
+                ]
+                }
+             }
+	   }
+         
+        return new_policy
+        
+
+
+
 
 
 
@@ -89,7 +150,7 @@ config={'userName':'kannan',
 
 try:
   with FirmsConsumer(config) as conn:
-      conn.consume(func)
+      conn.consume(callback)
 except KeyboardInterrupt:
     print("keyboard interrupt")
 

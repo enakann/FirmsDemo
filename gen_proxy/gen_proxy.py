@@ -81,11 +81,13 @@ def func(body):
 
 
 def callback(*args,**kwargs):
-     (result,Data)=DataStore(*args,**kwargs).process()
-     print(Data)
-     if Data:
-         print("In call back ")
-         publisher_config={'userName':'kannan',
+    Data=DataStore(*args,**kwargs).process()
+    if Data:
+        if isinstance(Data,bool):
+            return Data
+        else:
+          print("In call back ")
+          publisher_config={'userName':'kannan',
             'password':'divya123',
             'host':'rabbitmq-1',
             'port':'5672',
@@ -93,10 +95,12 @@ def callback(*args,**kwargs):
             'exchangeName':'gen_proxy_exchange',
             'routingKey':'gen'
             }
-         with FirmsPublisher(publisher_config) as  generateInstance:
+        with FirmsPublisher(publisher_config) as  generateInstance:
              generateInstance.publish(Data)
-     if result:
-         return result
+        return True
+    else:
+         return False
+
         
 
 
@@ -115,6 +119,7 @@ class DataStore:
            print("1 receiced data from picking")
            data=self.pickle.read()
            #pprint("2 recevied data is {}".format(data))
+           #data={}
         except Exception as e:
             print("Receieved Exception:{ } from Pickling".format(e))
             raise e
@@ -122,18 +127,24 @@ class DataStore:
             print("in if data block")
             print(data)
             if self.correlation_id in data.keys():
-                   # msgAndHeader=data.get(self.correlation_id,None)
-                    msgAndHeader=data.get(self.correlation_id)
-                    #self.pickle.write(data)
-                    return (True,msgAndHeader)
+                    #msgAndHeader=data.get(self.correlation_id,None)
+                    msgAndHeader=data.pop(self.correlation_id)
+                    if data:
+                       self.pickle.write(data)
+                       print(data)
+                    else:
+                        data={'dummy':'d'}
+                        self.pickle.write(data)
+                    return msgAndHeader
             else:
                 print("in else of the if data part")
                 data[self.correlation_id]={}
                 data[self.correlation_id]['headers']=self.prop
                 data[self.correlation_id]['payload']=self.msg
-                print(data)
-                try:
-                   self.pickle.write(data)
+                #print(data)
+                try:                  
+                    self.pickle.write(data)
+                    print(data)
                 except Exception as e:
                    raise e
                 return True
@@ -146,7 +157,7 @@ class DataStore:
             self.pickle.write(data)
             print("else part picking done")
             return True
-        return False
+        #return False
 
 
     def get_corrid(self):
@@ -185,14 +196,14 @@ config={'userName':'kannan',
 
 #import pdb;pdb.set_trace()
 
-try:
-  with FirmsConsumer(config) as conn:
+
+with FirmsConsumer(config) as conn:
       conn.consume(callback)
-except KeyboardInterrupt:
-    print("keyboard interrupt")
-except Exception as e:
-    print(e)
-    raise e
+#except KeyboardInterrupt:
+#    print("keyboard interrupt")
+#except Exception as e:
+#    print(e)
+#    raise e
 
 
 

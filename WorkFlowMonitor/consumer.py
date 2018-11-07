@@ -62,9 +62,9 @@ class FirmsConsumer:
             print("Handler received exception {}".format(e))
             res=None
         if res:
-            self.channel.basic_ack(delivery_tag=method.delivery_tag)
+            self.channel.basic_nack(delivery_tag=method.delivery_tag)
         else:
-            self.channel.basic_nack(delivery_tag=method.delivery_tag,requeue=False)
+            self.channel.basic_nack(delivery_tag=method.delivery_tag)
 
 
 
@@ -170,9 +170,9 @@ config={'userName':'kannan',
         'host':'rabbitmq-1',
         'port':'5672',
         'virtualHost':'/',
-        'exchangeName':'',
-        'queueName':'generator',
-        'routingKey':'gen',
+        'exchangeName':'work_flow_monitor_exchange',
+        'queueName':'work_flow_monitor_queue',
+        'routingKey':'monitor',
         'props':{'content_type' :'text/plain',
                  'delivery_mode':2}
         }
@@ -180,7 +180,7 @@ config={'userName':'kannan',
 
 try:
   with FirmsConsumer(config) as conn:
-      conn.consume(callback)
+      conn.consume(func)
 except KeyboardInterrupt:
     print("keyboard interrupt")
 

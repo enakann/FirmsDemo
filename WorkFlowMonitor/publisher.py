@@ -108,7 +108,7 @@ if __name__ == '__main__':
             }
 
     #msgs=sys.argv[1:]
-    sg={"headers":                      
+    msg={"headers":                      
     {
         "username":"navi",
         "ticket-num":"srno1",

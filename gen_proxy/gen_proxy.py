@@ -3,6 +3,7 @@ import json
 from Pickling import Pickling
 from pprint import pprint
 from publisher import FirmsPublisher
+import traceback
 class FirmsConsumer:
     def __init__(self, config):
         self.config = config
@@ -73,6 +74,20 @@ class FirmsConsumer:
         else:
             self.channel.basic_nack(delivery_tag=method.delivery_tag)
 
+class WorkFlowMonitor:
+    def __init__(self):
+        self.config={'userName':'kannan',
+            'password':'divya123',
+            'host':'rabbitmq-1',
+            'port':'5672',
+            'virtualHost':'/',
+            'exchangeName':'work_flow_monitor_exchange',
+            'routingKey':'monitor'
+            }
+    def update(self,msg):
+         with FirmsPublisher(self.config) as  workFlowUpdateObject:
+             result=workFlowUpdateObject.publish(msg)
+             return result
 
 
 def func(body):
@@ -80,8 +95,12 @@ def func(body):
     return 1
 
 
-def callback(*args,**kwargs):
-    Data=DataStore(*args,**kwargs).process()
+def callback(prop,msg):
+    print(prop,msg)
+    log_message={}
+    log_message["headers"]=prop.headers
+    log_message["Payload"]=msg
+    Data=DataStore(prop,msg).process()
     if Data:
         if isinstance(Data,bool):
             return Data
@@ -96,8 +115,13 @@ def callback(*args,**kwargs):
             'routingKey':'gen'
             }
         with FirmsPublisher(publisher_config) as  generateInstance:
-             generateInstance.publish(Data)
-        return True
+            result=generateInstance.publish(Data)
+        if result:
+            result2=WorkFlowMonitor().update(log_message)
+            print("message to be published is -->{}".format(log_message))
+            if result2:
+                print("Message is updated to work flow monitor")
+            return True
     else:
          return False
 
@@ -167,43 +191,30 @@ class DataStore:
 
 
         
+if __name__ == '__main__':
 
+    config={'userName':'kannan',
+            'password':'divya123',
+            'host':'rabbitmq-1',
+            'port':'5672',
+            'virtualHost':'/',
+            'exchangeName':'validator_Exchange',
+            'queueName':'gen_proxy',
+            'routingKey':'',
+            'props':{'content_type' :'text/plain',
+                     'delivery_mode':2}
+            }
 
+    #import pdb;pdb.set_trace()
 
-config1={'userName':'kannan',
-        'password':'divya123',
-        'host':'rabbitmq-1',
-        'port':'5672',
-        'virtualHost':'/',
-        'exchangeName':'kannan',
-        'queueName':'kannan1',
-        'routingKey':'kannan.log',
-        'props':{'content_type' :'text/plain',
-                 'delivery_mode':2}
-        }
-
-config={'userName':'kannan',
-        'password':'divya123',
-        'host':'rabbitmq-1',
-        'port':'5672',
-        'virtualHost':'/',
-        'exchangeName':'validator_Exchange',
-        'queueName':'gen_proxy',
-        'routingKey':'',
-        'props':{'content_type' :'text/plain',
-                 'delivery_mode':2}
-        }
-
-#import pdb;pdb.set_trace()
-
-
-with FirmsConsumer(config) as conn:
-      conn.consume(callback)
-#except KeyboardInterrupt:
-#    print("keyboard interrupt")
-#except Exception as e:
-#    print(e)
-#    raise e
+    try:
+       with FirmsConsumer(config) as conn:
+          conn.consume(callback)
+    except KeyboardInterrupt:
+        print("keyboard interrupt")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
 

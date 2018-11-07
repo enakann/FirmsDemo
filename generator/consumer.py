@@ -66,10 +66,27 @@ class FirmsConsumer:
         else:
             self.channel.basic_nack(delivery_tag=method.delivery_tag,requeue=False)
 
+class WorkFlowMonitor:
+    def __init__(self):
+        self.config={'userName':'kannan',
+            'password':'divya123',
+            'host':'rabbitmq-1',
+            'port':'5672',
+            'virtualHost':'/',
+            'exchangeName':'work_flow_monitor_exchange',
+            'routingKey':'monitor'
+            }
+    def update(self,msg):
+         with FirmsPublisher(self.config) as  workFlowUpdateObject:
+             result=workFlowUpdateObject.publish(msg,'monitor')
+             return result
 
 
-def callback(*args,**kwargs):
-    data=Generate(*args,**kwargs).process()
+def callback(prop,msg):
+    log_message={}
+    log_message["headers"]=prop.headers
+    log_message["Payload"]=msg
+    data=Generate(prop,msg).process()
     if data:
          config={'userName':'kannan',
             'password':'divya123',
@@ -81,8 +98,14 @@ def callback(*args,**kwargs):
 
          with FirmsPublisher(config) as  generateInstance:
             result=generateInstance.publish(data,"new.policy")
+         if result:
+            result2=WorkFlowMonitor().update(log_message)
             print("Message Published ---{}".format(result))
-    return True
+            if result2:
+                print("Message is updated to work flow monitor")
+            return True
+    else:
+        return False
 
 
 
@@ -122,7 +145,37 @@ class Generate:
 	   }
          
         return new_policy
-        
+
+    def get_existing_policy(self):
+        existing_policy={
+                "Payload":
+            {
+                "firewall":"firewall",
+                "policy-name":"policy-name",
+                "source-ip":"source-ip",
+                "destination-ip":"destination-ip",
+                "port":"port",
+                "input-row-id":"input-row-id"
+            }
+         }
+        return existing_policy
+    def get_red_flags(self):
+        red_flag= {
+                "Source-IP": "Source-IP",
+                "Routing-Issue-Reason":"Routing-Issue-Reason",
+                "Input-Row-ID":"Input-Row-ID",
+                "Destination-Firewall":"Destination-Firewall",
+                "Dest-Zone-2":"Dest-Zone-2",           
+                "Source-Zone":"Source-Zone",
+                "Dest-Zone":"Dest-Zone",
+                "Destination-IP":"Destination-IP",
+                "Source-Zone-2":"Source-Zone-2",
+                "Source-Firewall":"Source-Firewall",
+                "Port": "Port"
+             }
+        return red_flags
+
+
 
 
 

@@ -19,24 +19,4 @@ ssS'payload'
 p9
 S'{"Payload": {"source": "10.10.10.1", "destination": "10.172.2.1", "protocol": "tcp", "port": 22, "input-row-id": 1}}'
 p10
-ssI11117
-(dp11
-S'headers'
-p12
-(dp13
-S'username'
-p14
-Vnavi
-p15
-sS'ticket-num'
-p16
-Vsrno1
-p17
-sS'correlation-id'
-p18
-I11117
-ssS'payload'
-p19
-S'{"Payload": {"source": "10.10.10.1", "destination": "10.172.2.1", "protocol": "tcp", "port": 22, "input-row-id": 1}}'
-p20
 ss.

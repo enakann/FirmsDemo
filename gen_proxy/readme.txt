@@ -58,3 +58,11 @@ Validator---->(proxy)-------------------------------[ gen queue ]---------------
 			   - publish the message to
         			   generator queue once ticket progress
 					   received from request updater
+
+
+how to run
+##########
+run in order
+
+1.validator/publisher.py
+2.gen_proxy/gen_proxy.py

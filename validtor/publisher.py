@@ -4,8 +4,9 @@ import sys
 import json
 import uuid
 from retry import retry
-
-
+import time
+import copy
+import traceback
 class FirmsPublisher:
     def __init__(self, config):
         self.config = config
@@ -33,7 +34,8 @@ class FirmsPublisher:
         self.header=msg.pop("headers")
         self.msg_props=pika.BasicProperties(
                           headers=self.header # Add a key/value header
-                      )
+                          )
+        print(self.msg_props)
         return self.msg_props
 
 
@@ -76,70 +78,101 @@ class FirmsPublisher:
  
         print("Message delivered {}".format(self.result))
         print("send message --->{}".format(message))
+
         if not self.result:
             raise pika.exceptions.NackError(message)
             #OR PUBLISH TO A DIFFERENT EXCHANGE
-        
+        return self.result
     @retry(3)    
     def publish(self,message):
         try:
-          self._publish(message)
+          result=self._publish(message)
         except (pika.exceptions.ChannelClosed,pika.exceptions.ConnectionClosed,pika.exceptions.AMQPConnectionError):
            print('Error. Connection closed, and the message was never delivered.')
            self.connect()
-           self._publish(message)
+           result=self._publish(message)
         except Exception as e:
             raise e
+        return result
 
 
     def close(self):
             if self.connection:
                 self.connection.close()
+
+class WorkFlowMonitor:
+    def __init__(self):
+        self.config={'userName':'kannan',
+            'password':'divya123',
+            'host':'rabbitmq-1',
+            'port':'5672',
+            'virtualHost':'/',
+            'exchangeName':'work_flow_monitor_exchange',
+            'routingKey':'monitor'
+            }
+    def update(self,msg):
+         with FirmsPublisher(self.config) as  workFlowUpdateObject:
+             result=workFlowUpdateObject.publish(msg)
+             return result
+            
+
+def run(config,msg):
+ orig_msg=copy.deepcopy(msg)
+ with FirmsPublisher(config) as  generateInstance:
+            result=generateInstance.publish(msg)
+            print("msg has been published ----{}".format(result))
+ if result:
+   print(msg)
+   log_message={"headers":orig_msg["headers"],
+               "Payload":{
+               "time":time.time(),
+                 "correlation-id":orig_msg["headers"]["correlation-id"],
+                 "ticket_num":orig_msg["headers"]["ticket-num"],
+                 "service_name":"validator",
+                 "service_component":"validator"}}
+   result2=WorkFlowMonitor().update(log_message)
+   if result2:
+        print("Work flow monitor is updated")
+   else:
+        print("Work flow monitor upate failed")
+
+
+
+
+
  
+if __name__ == '__main__':
 
-config1={'userName':'kannan',
-        'password':'divya123',
-        'host':'rabbitmq-1',
-        'port':'5672',
-        'virtualHost':'/',
-        'exchangeName':'kannan',
-        'routingKey':'kannan.log',
-        'props':{'content_type' :'text/plain',
-                 'delivery_mode':2,
-                 'username':'username',
-                 'ticket_no':'ticket_no',
-                 }
-        }
+    config={'userName':'kannan',
+            'password':'divya123',
+            'host':'rabbitmq-1',
+            'port':'5672',
+            'virtualHost':'/',
+            'exchangeName':'validator_Exchange',
+            'routingKey':''
+            }
+
+    #msgs=sys.argv[1:]
+    msg={"headers":                      
+    {
+        "username":"navi",
+        "ticket-num":"srno1",
+        "correlation-id":11119
+    },
+    "Payload":
+    {
+        "source":"10.10.10.1",
+        "destination":"10.172.2.1",
+        "port": 22,
+        "protocol":"tcp",
+        "input-row-id" :1
+    }}
+    try:
+      run(config,msg)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
-config={'userName':'kannan',
-        'password':'divya123',
-        'host':'rabbitmq-1',
-        'port':'5672',
-        'virtualHost':'/',
-        'exchangeName':'validator_Exchange',
-        'routingKey':''
-        }
 
-#msgs=sys.argv[1:]
-msg={"headers":                      
-{
-    "username":"navi",
-    "ticket-num":"srno1",
-    "correlation-id":11117
-},
-"Payload":
-{
-    "source":"10.10.10.1",
-    "destination":"10.172.2.1",
-    "port": 22,
-    "protocol":"tcp",
-    "input-row-id" :1
-}}
-
-msgs=[msg]
-
-with FirmsPublisher(config) as  generateInstance:
-    for msg in msgs:
-        generateInstance.publish(msg)
-    
+        

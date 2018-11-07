@@ -123,4 +123,24 @@ ssS'payload'
 p61
 S'{"Payload": {"source": "10.10.10.1", "destination": "10.172.2.1", "protocol": "tcp", "port": 22, "input-row-id": 1}}'
 p62
+ssI11119
+(dp63
+S'headers'
+p64
+(dp65
+S'username'
+p66
+Vnavi
+p67
+sS'ticket-num'
+p68
+Vsrno1
+p69
+sS'correlation-id'
+p70
+I11119
+ssS'payload'
+p71
+S'{"Payload": {"source": "10.10.10.1", "destination": "10.172.2.1", "protocol": "tcp", "port": 22, "input-row-id": 1}}'
+p72
 ss.

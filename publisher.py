@@ -44,8 +44,7 @@ class FirmsPublisher:
             self.channel = self.connection.channel()
             self.channel.exchange_declare(exchange=self.config['exchangeName'],
                                          passive=True)
-            self.channel.add_on_return_callback(self.confirm_handler)
-            self.channel.add_on_cancel_callback(self.confirm_handler)
+
             self.channel.confirm_delivery()
             return self
         except Exception as e:
@@ -54,15 +53,6 @@ class FirmsPublisher:
             raise e
 
    
-    def confirm_handler(self,*frame):
-        print("handler is confirmed")
-        print(frame)
-        if type(frame.method) == spec.Confirm.SelectOk:
-              print "Channel in 'confirm' mode."
-        elif type(frame.method) == spec.Basic.Nack:
-              print "Message lost!"
-        elif type(frame.method) == spec.Basic.Ack:
-              print "Confirm received!" 
 
  
     def _publish(self, message):

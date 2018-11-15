@@ -24,7 +24,6 @@ class Aggreagator:
             assert "payload" in self.msg and len(self.msg["payload"]) > 0
         except AssertionError:
             print("verify msg failed")
-            raise
             return False
         return True
     
@@ -38,7 +37,7 @@ class Aggreagator:
         # print(ret)
         return (len(ret), ret)
     
-    def process_validator_msg(self, lock):
+    def process_validator_msg(self):
         print(current_process().name)
         if not self.verifymsg:
             return False
@@ -65,7 +64,7 @@ class Aggreagator:
             # FIXME - may be we have to delete the old message and insert the new one
             return False
     
-    def process_requestupdater_msg(self, lock):
+    def process_requestupdater_msg(self):
         """
         ret_validator_upd:status of the validator func
         ret_reqUpdator_upd: status of request updater
@@ -75,13 +74,14 @@ class Aggreagator:
         """
         if not self.verifymsg:
             return False
-        print(current_process().name)
         ret_reqUpdator_upd = False
         ret_validator_upd = False
         final_msg = None
+
         (header, payload) = self.get_header_payload()
         
         ret_reqUpdator_upd = self.insert_request_update_table(header, payload)
+        
         if ret_reqUpdator_upd:
             print("message from Requester updated is inserted into the table")
             ret_validator_upd, data = self.verify_if_message_in_queue(header["correlation_id"], "validator")
@@ -190,13 +190,13 @@ if __name__ == '__main__':
     # ret=ag.process_requestupdater_msg()
     # print(ret)
     
-    msg4 = {}
-    obj1 = Aggreagator(msg2)
-    obj2 = Aggreagator(msg3)
-    lock = Lock()
-    p1 = Process(target=obj1.process_validator_msg, args=(lock,))
-    p2 = Process(target=obj2.process_requestupdater_msg, args=(lock,))
-    p2.start()
-    p1.start()
-    p1.join()
-    p2.join()
+    #msg4 = {}
+    #obj1 = Aggreagator(msg2)
+    #obj2 = Aggreagator(msg3)
+    #lock = Lock()
+    #p1 = Process(target=obj1.process_validator_msg, args=(lock,))
+    #p2 = Process(target=obj2.process_requestupdater_msg, args=(lock,))
+    #p2.start()
+    #p1.start()
+    #p1.join()
+    #p2.join()

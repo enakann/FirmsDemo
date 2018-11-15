@@ -6,10 +6,30 @@ from aggregator import Aggreagator
 import copy
 import traceback
 
+#@property
+def verifymsg():
+    """ doc """
+    try:
+        assert isinstance(self.msg, dict)
+        assert "header" in self.msg and len(self.msg["header"]) > 0
+        assert "payload" in self.msg and len(self.msg["payload"]) > 0
+    except AssertionError:
+        print("verify msg failed")
+        return False
+    return True
 
-def callback(msg):
+
+#>>> ls={u'payload': {u'source': u'10.10.10.1', u'destination': u'10.172.2.1', u'protocol': u'tcp', u'port': 22, u'input-row-id': 1}}
+#>>> a={'username': u'navi', 'status': u'done', 'correlation_id': u'11115', 'ticket_num': u'srno1'}
+#>>> ls.update(a)
+#>>> ls
+{'username': u'navi', 'status': u'done', 'correlation_id': u'11115', u'payload': {u'source': u'10.10.10.1', u'destination': u'10.172.2.1', u'protocol': u'tcp', u'port': 22, u'input-row-id': 1}, 'ticket_num': u'srno1'}
+
+def callback(prop,msg):
     # msg_log=copy.deepcopy(msg)
     # workflow_monitor=WorkFlowMonitor().update(log_message)
+    #verifymsg(prop,msg)
+    #prop.update(msg)
     try:
         (ret_validator_upd, ret_reqUpdator_upd, final_msg) = Aggreagator(msg).process_requestupdater_msg()
         
@@ -35,6 +55,10 @@ def callback(msg):
     return False
 
 
+def func(prop,msg):
+    prop.update(msg)
+    print(prop)
+
 if __name__ == '__main__':
     
     config = {'userName': 'kannan',
@@ -42,8 +66,8 @@ if __name__ == '__main__':
               'host': 'rabbitmq-1',
               'port': '5672',
               'virtualHost': '/',
-              'exchangeName': 'validator_Exchange',
-              'queueName': 'gen_proxy',
+              'exchangeName': 'aggregator',
+              'queueName': 'requpdater',
               'routingKey': '',
               'props': {'content_type': 'text/plain',
                         'delivery_mode': 2}
@@ -53,7 +77,7 @@ if __name__ == '__main__':
     
     try:
         with FirmsConsumer(config) as conn:
-            conn.consume(callback)
+            conn.consume(func)
     except KeyboardInterrupt:
         print("keyboard interrupt")
     except Exception as e:

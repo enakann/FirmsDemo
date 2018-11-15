@@ -22,7 +22,10 @@ def callback(msg):
     return False
 
 
-
+def func(prop,msg):
+    print(prop)
+    print(msg)
+    return False
 
 
 
@@ -34,8 +37,8 @@ if __name__ == '__main__':
             'host':'rabbitmq-1',
             'port':'5672',
             'virtualHost':'/',
-            'exchangeName':'validator_Exchange',
-            'queueName':'gen_proxy',
+            'exchangeName':'aggregator',
+            'queueName':'validator',
             'routingKey':'',
             'props':{'content_type' :'text/plain',
                      'delivery_mode':2}
@@ -45,7 +48,7 @@ if __name__ == '__main__':
 
     try:
        with FirmsConsumer(config) as conn:
-          conn.consume(callback)
+          conn.consume(func)
     except KeyboardInterrupt:
         print("keyboard interrupt")
     except Exception as e:

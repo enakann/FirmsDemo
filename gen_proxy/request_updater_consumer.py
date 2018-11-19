@@ -6,18 +6,30 @@ from aggregator import Aggreagator
 import copy
 import traceback
 
-
+class ReqUpdater:
+    def __init__(self,config,final_msg):
+        self.config=config
+        self.final_msg=final_msg
+    def process(self):
+        try:
+           ret=FirmsPublisher(config).publish(final_msg)
+           if ret:
+               return True
+        except Exception as e:
+            print(e)
+        return False
+        
 def callback(msg):
     # msg_log=copy.deepcopy(msg)
-    # workflow_monitor=WorkFlowMonitor().update(log_message)
+    workflow_monitor=WorkFlowMonitor()
     try:
-        (ret_validator_upd, ret_reqUpdator_upd, final_msg) = Aggreagator(msg).process_requestupdater_msg()
+        (ret_reqUpdator_upd, final_msg) = Aggreagator(workflow_monitor,msg).process_requestupdater_msg()
         
         if ret_reqUpdator_upd:
             print("request updater msg is updated into the aggregator datastore ")
             workflow_monitor("request updater msg is updated into the aggregator datastore".format(msg))
             try:
-                if ret_validator_upd and final_msg:
+                if final_msg:
                     ret = FirmsPublisher(config).publish(final_msg)
                 else:
                     print("for the message received form requpdater corresponding message not in validator queue")

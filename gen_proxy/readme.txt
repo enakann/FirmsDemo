@@ -1,14 +1,15 @@
-originator -------->Validator
+loop:
+    consume_from_queue()
+        store_consumed_message_in_local_store()
+        call_processor_with_message()
+        delete_processed_message()
+	
+aggregator --exchange
 
-   input=originator_queue
-   output=validator_Exchange
-          type:fanout
-		  consumers:2(requester_updater,gen_proxy) 
+validator -valid  validator_consumer.py  validator_publisher.py
 
+requpdater -req  request_updater_consumer.py  requpdated_publisher.py
 
-gen_proxy_Exchange
-queue:generator
-routing_key:gen		  
 
 
 					   

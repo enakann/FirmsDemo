@@ -59,10 +59,10 @@ class FirmsConsumer:
         return pika.BlockingConnection(parameters)
  
     def _consume_message(self, channel, method, properties, body):
-        print(method.consumer_tag)
-        print(properties.headers)
-        #properties=json.loads(properties)
-        #body=json.loads(body)
+        #print(method.consumer_tag)
+        #print(properties.headers)
+        properties=properties.headers
+        body=json.loads(body)
         try:
             res= self.message_received_callback(properties,body)
         except Exception as e:

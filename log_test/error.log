@@ -1,0 +1,6 @@
+2018-11-19 00:03:36,468  kannan util::process()  ERROR  (PID: 19764)>  division by zero
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\log_test\lib\util.py", line 15, in process
+    return self.a/self.b
+ZeroDivisionError: division by zero
+2018-11-19 00:03:36,483  kannan util2::process()  ERROR  (PID: 19764)>  [<FrameSummary file C:/Users/navkanna/PycharmProjects/FirmsDemo/log_test/main.py, line 64 in <module>>, <FrameSummary file C:/Users/navkanna/PycharmProjects/FirmsDemo/log_test/main.py, line 55 in main>, <FrameSummary file C:\Users\navkanna\PycharmProjects\FirmsDemo\log_test\lib\util2.py, line 15 in process>]

@@ -1,0 +1,39 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "verbose": {
+            "format": "%(name)s  %(asctime)s  %(module)s::%(funcName)s()  %(levelname)s  (PID: %(process)d)>  %(message)s"
+        },
+        "simple": {
+            "format": "firms  %(asctime)s  %(levelname)s >  %(message)s"
+        }
+    },
+
+    "handlers": {
+
+        "firms_fpb": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename" : "C:\\Users\\navkanna\\PycharmProjects\\FirmsDemo\\log_test\\firms-fpb.log",
+            "formatter": "verbose",
+            "when": "midnight",
+            "backupCount": 10,
+            "encoding": "utf8"
+        }
+
+    },
+
+    "loggers": {
+         "firms_fpb": {
+            "level": "INFO",
+            "handlers": ["firms_fpb"],
+            "propagate": "false"
+        },
+        "sys-logger": {
+            "level": "INFO",
+            "handlers": ["sys-logger"],
+            "propagate": "false"
+        }
+
+    }
+}

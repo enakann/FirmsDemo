@@ -1,0 +1,44 @@
+2018-11-19 15:50:24,062  aggregator data_store::select_data()  ERROR  (PID: 22576)>  Select failed :select * from contacts where first_name=:1-('navi',) due to no such table: contacts
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 81, in select_data
+    self.cur.execute(query, bind)
+sqlite3.OperationalError: no such table: contacts
+2018-11-19 15:51:31,728  aggregator data_store::select_data()  ERROR  (PID: 6248)>  Select failed :select * from contacts where first_name=:1-('navi',) due to no such table: contacts
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 82, in select_data
+    self.cur.execute(query, bind)
+sqlite3.OperationalError: no such table: contacts
+2018-11-19 15:54:57,827  aggregator data_store::select_data()  ERROR  (PID: 12888)>  Select failed :select * from contacts where first_name=:1-('nav',) due to ('select * from contacts where first_name=:1', ('nav',), [])
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 89, in select_data
+    raise NoDataAvailableException(query,bind,data)
+utils.data_store.NoDataAvailableException: ('select * from contacts where first_name=:1', ('nav',), [])
+2018-11-19 16:01:53,213  aggregator data_store::select_data()  ERROR  (PID: 14868)>  Select failed :select * from contacts where first_name=:1-('nav',) due to no such table: contacts
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 92, in select_data
+    self.cur.execute(query, bind)
+sqlite3.OperationalError: no such table: contacts
+2018-11-19 16:02:42,332  aggregator data_store::inner()  ERROR  (PID: 23100)>  unable to open database file
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 26, in inner
+    ret=f(*args, **kwargs)
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 58, in connect
+    self.conn = sqlite3.connect(self.db)
+sqlite3.OperationalError: unable to open database file
+2018-11-19 16:02:42,332  aggregator data_store::select_data()  ERROR  (PID: 23100)>  Select failed :select * from contacts where first_name=:1-('nav',) due to 'NoneType' object has no attribute 'execute'
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 92, in select_data
+    self.cur.execute(query, bind)
+AttributeError: 'NoneType' object has no attribute 'execute'
+2018-11-19 16:02:42,363  aggregator data_store::inner()  ERROR  (PID: 23100)>  'NoneType' object has no attribute 'close'
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 26, in inner
+    ret=f(*args, **kwargs)
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 113, in close
+    self.conn.close ()
+AttributeError: 'NoneType' object has no attribute 'close'
+2018-11-19 16:06:13,378  aggregator data_store::select_data()  ERROR  (PID: 20380)>  Select failed :select * from contacts where first_name=:1-('nav',) due to ('select * from contacts where first_name=:1', ('nav',), [])
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 96, in select_data
+    raise NoDataAvailableException(query,bind,data)
+utils.data_store.NoDataAvailableException: ('select * from contacts where first_name=:1', ('nav',), [])

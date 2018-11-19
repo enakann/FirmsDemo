@@ -1,0 +1,5 @@
+2018-11-19 16:06:13,378 -ERROR:aggregator:Select failed :select * from contacts where first_name=:1-('nav',) due to ('select * from contacts where first_name=:1', ('nav',), [])
+Traceback (most recent call last):
+  File "C:\Users\navkanna\PycharmProjects\FirmsDemo\Aggregator\Aggregator\utils\data_store.py", line 96, in select_data
+    raise NoDataAvailableException(query,bind,data)
+utils.data_store.NoDataAvailableException: ('select * from contacts where first_name=:1', ('nav',), [])
